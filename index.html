@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <style>
+    canvas {
+      border: 1px solid black;
+      cursor: crosshair;
+    }
+  </style>
+</head>
+<body>
+  <label for="shapeName">Síkidom neve:</label>
+  <input type="text" id="shapeName">
+  <br>
+  <canvas id="canvas" width="400" height="400"></canvas>
+  <br>
+  <button id="saveButton">Mentés</button>
+
+  <script>
+    var canvas = document.getElementById('canvas');
+    var ctx = canvas.getContext('2d');
+    var shapeNameInput = document.getElementById('shapeName');
+    var saveButton = document.getElementById('saveButton');
+    var shapes = [];
+
+    canvas.addEventListener('click', function(event) {
+      var rect = canvas.getBoundingClientRect();
+      var x = event.clientX - rect.left;
+      var y = event.clientY - rect.top;
+      drawVertex(x, y);
+    });
+
+    saveButton.addEventListener('click', function() {
+      var shapeName = shapeNameInput.value;
+      var vertices = getVertices();
+      var shape = {
+        megnevezes: shapeName,
+        csucsok: vertices
+      };
+      shapes.push(shape);
+      console.log(shapes);
+      resetCanvas();
+      shapeNameInput.value = '';
+    });
+
+    function drawVertex(x, y) {
+      ctx.fillStyle = 'black';
+      ctx.fillRect(x - 2, y - 2, 5, 5);
+    }
+
+    function getVertices() {
+      var vertices = [];
+      var pixels = ctx.getImageData(0, 0, canvas.width, canvas.height).data;
+      for (var i = 0; i < pixels.length; i += 4) {
+        var x = (i / 4) % canvas.width;
+        var y = Math.floor((i / 4) / canvas.width);
+        var r = pixels[i];
+        var g = pixels[i + 1];
+        var b = pixels[i + 2];
+        if (r === 0 && g === 0 && b === 0) {
+          vertices.push({ x: x, y: y });
+        }
+      }
+      console.log(vertices);
+      return vertices;
+    }
+
+    function resetCanvas() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+    }
+  </script>
+</body>
+</html>
